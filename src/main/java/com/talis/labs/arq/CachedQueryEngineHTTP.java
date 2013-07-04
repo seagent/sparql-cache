@@ -175,7 +175,7 @@ public class CachedQueryEngineHTTP extends QueryEngineHTTP {
 
 	public static void main(String[] args) {
 		Random random = new Random();
-		String serviceURI = "http://api.talis.com/stores/bbc-wildlife/services/sparql";
+		String serviceURI = "http://155.223.25.212:7000/sparql/";
 		for (int i = 0; i < 100000; i++) {
 			Timer timerQuery = new Timer();
 			timerQuery.startTimer();

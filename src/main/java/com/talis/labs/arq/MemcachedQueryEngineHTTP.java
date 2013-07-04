@@ -42,8 +42,13 @@ import com.hp.hpl.jena.sparql.util.Timer;
 public class MemcachedQueryEngineHTTP extends QueryEngineHTTP implements
 		Closeable {
 
-	private String key = null;
-	private MemcachedClient client;
+	protected String key = null;
+
+	public String getKey() {
+		return key;
+	}
+
+	protected MemcachedClient client;
 	public static int TTL = 60 * 60 * 24; // TTL is 1 day in seconds
 
 	public MemcachedQueryEngineHTTP(String serviceURI, Query query) {
@@ -156,7 +161,7 @@ public class MemcachedQueryEngineHTTP extends QueryEngineHTTP implements
 		client.shutdown();
 	}
 
-	private void toModel(String value, Model model) {
+	protected void toModel(String value, Model model) {
 		try {
 			InputStream in = new ByteArrayInputStream(value.getBytes("UTF-8"));
 			model.read(in, null, "N-TRIPLES");
@@ -165,7 +170,7 @@ public class MemcachedQueryEngineHTTP extends QueryEngineHTTP implements
 		}
 	}
 
-	private String toString(Model model) {
+	protected String toString(Model model) {
 		try {
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			model.write(out, "N-TRIPLES", null);
@@ -177,7 +182,7 @@ public class MemcachedQueryEngineHTTP extends QueryEngineHTTP implements
 	}
 
 	public static void main(String[] args) throws Exception {
-		String serviceURI = "http://api.talis.com/stores/bbc-wildlife/services/sparql";
+		String serviceURI = "http://155.223.25.212:7000/sparql/";
 		for (int i = 0; i < 10000; i++) {
 			Timer timerQuery = new Timer();
 			timerQuery.startTimer();
