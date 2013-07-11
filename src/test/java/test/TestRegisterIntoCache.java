@@ -1,4 +1,5 @@
 package test;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -77,6 +78,37 @@ public class TestRegisterIntoCache {
 		assertFalse(mockQueryEngine.isResultInTheCache());
 		assertNotNull(mockQueryEngine.getClient().get(mockQueryEngine.getKey()));
 
+		mockQueryEngine.shutdown();
+
+	}
+
+	/**
+	 * This test controls putting a query result into memcached cache
+	 * successfully which is not contained in cache.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void executingQueryNotExistsInTheCacheConstruct() throws Exception {
+
+		// create a mock memcached query engine to simulate executing sparql
+		// queries using memcached cache.
+		MockMemcachedQueryEngineHTTP mockQueryEngine = new MockMemcachedQueryEngineHTTP(
+				Constants.LOCAL_DBPEDIA_ENDPOINT,
+				Constants.CONSTRUCT_DBPEDIA_GET_TURKISH_PERSONS);
+		// clean cache before executing query
+		mockQueryEngine.flush();
+
+		assertNull(mockQueryEngine.getClient().get(mockQueryEngine.getKey()));
+
+		// execute query on mock query engine...
+		mockQueryEngine.execConstruct();
+
+		assertFalse(mockQueryEngine.isResultInTheCache());
+		assertNotNull(mockQueryEngine.getClient().get(mockQueryEngine.getKey()));
+
+		mockQueryEngine.shutdown();
+
 	}
 
 	/**
@@ -103,6 +135,8 @@ public class TestRegisterIntoCache {
 		assertTrue(mockQueryEngine.isResultInTheCache());
 		assertNotNull(mockQueryEngine.getClient().get(mockQueryEngine.getKey()));
 
+		mockQueryEngine.shutdown();
+
 	}
 
 	@Ignore
@@ -125,6 +159,8 @@ public class TestRegisterIntoCache {
 		// execute query on mock query engine...
 		mockQueryEngineFirst.execSelect();
 
+		mockQueryEngineFirst.shutdown();
+
 		// create a mock memcached query engine to execute nearly same query
 		// with first one.
 		MockMemcachedQueryEngineHTTP mockQueryEngineSecond = new MockMemcachedQueryEngineHTTP(
@@ -136,6 +172,8 @@ public class TestRegisterIntoCache {
 		assertTrue(mockQueryEngineSecond.isResultInTheCache());
 		assertNotNull(mockQueryEngineSecond.getClient().get(
 				mockQueryEngineSecond.getKey()));
+
+		mockQueryEngineSecond.shutdown();
 
 	}
 
@@ -159,6 +197,8 @@ public class TestRegisterIntoCache {
 		// execute query on mock query engine...
 		mockQueryEngineFirst.execSelect();
 
+		mockQueryEngineFirst.shutdown();
+
 		// create a mock memcached query engine to execute nearly same query
 		// with first one.
 		MockMemcachedQueryEngineHTTP mockQueryEngineSecond = new MockMemcachedQueryEngineHTTP(
@@ -170,6 +210,8 @@ public class TestRegisterIntoCache {
 		assertTrue(mockQueryEngineSecond.isResultInTheCache());
 		assertNotNull(mockQueryEngineSecond.getClient().get(
 				mockQueryEngineSecond.getKey()));
+
+		mockQueryEngineSecond.shutdown();
 
 	}
 

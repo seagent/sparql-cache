@@ -164,9 +164,4 @@ public class MockMemcachedQueryEngineHTTP extends MemcachedQueryEngineHTTP {
 
 		return ask;
 	}
-
-	@Override
-	public void close() {
-		client.shutdown();
-	}
 }

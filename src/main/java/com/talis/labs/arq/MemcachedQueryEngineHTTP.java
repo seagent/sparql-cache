@@ -141,6 +141,10 @@ public class MemcachedQueryEngineHTTP extends QueryEngineHTTP implements
 		return model;
 	}
 
+	public void shutdown() {
+		client.shutdown();
+	}
+
 	@Override
 	public boolean execAsk() {
 		boolean ask;
@@ -154,11 +158,6 @@ public class MemcachedQueryEngineHTTP extends QueryEngineHTTP implements
 		}
 
 		return ask;
-	}
-
-	@Override
-	public void close() {
-		client.shutdown();
 	}
 
 	protected void toModel(String value, Model model) {
