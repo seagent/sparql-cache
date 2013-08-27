@@ -53,7 +53,11 @@ public class MockMemcachedQueryEngineHTTP extends MemcachedQueryEngineHTTP {
 	}
 
 	public MemcachedClient getClient() {
-		return this.client;
+		return MockMemcachedQueryEngineHTTP.client;
+	}
+
+	public static void setClient(MemcachedClient client) {
+		MockMemcachedQueryEngineHTTP.client = client;
 	}
 
 	@Override

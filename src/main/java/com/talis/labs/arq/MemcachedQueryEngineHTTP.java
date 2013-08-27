@@ -27,12 +27,17 @@ import net.spy.memcached.MemcachedClient;
 
 import org.apache.jena.atlas.lib.Closeable;
 import org.apache.jena.atlas.lib.Pair;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.ResultSetFactory;
 import com.hp.hpl.jena.query.ResultSetFormatter;
+import com.hp.hpl.jena.query.ResultSetRewindable;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
@@ -43,23 +48,30 @@ public class MemcachedQueryEngineHTTP extends QueryEngineHTTP implements
 		Closeable {
 
 	protected String key = null;
+	protected Logger logger;
 
 	public String getKey() {
 		return key;
 	}
 
-	protected MemcachedClient client;
+	protected static MemcachedClient client;
 	public static int TTL = 60 * 60 * 24; // TTL is 1 day in seconds
 
 	public MemcachedQueryEngineHTTP(String serviceURI, Query query) {
 		super(serviceURI, query);
+		logger = Logger.getLogger(MemcachedQueryEngineHTTP.class);
+		logger.setLevel(Level.INFO);
+		logger.addAppender(new ConsoleAppender(new PatternLayout(
+				PatternLayout.TTCC_CONVERSION_PATTERN)));
 		this.key = Integer.toString(new Pair<String, Query>(serviceURI, query)
 				.hashCode());
-		try {
-			this.client = new MemcachedClient(
-					AddrUtil.getAddresses("127.0.0.1:11211"));
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (client == null) {
+			try {
+				client = new MemcachedClient(
+						AddrUtil.getAddresses("127.0.0.1:11211"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -73,10 +85,16 @@ public class MemcachedQueryEngineHTTP extends QueryEngineHTTP implements
 
 		Object value = client.get(key);
 		if (value != null) {
+			logger.debug("ResultSet is retrieving from the cache.");
 			rs = ResultSetFactory.fromXML((String) value);
 		} else {
+			logger.debug("ResultSet will be got from dataset endpoint.");
 			rs = super.execSelect();
-			client.set(key, TTL, ResultSetFormatter.asXMLString(rs));
+			ResultSetRewindable rewindableRs = ResultSetFactory
+					.makeRewindable(rs);
+			client.set(key, TTL, ResultSetFormatter.asXMLString(rewindableRs));
+			rewindableRs.reset();
+			rs = rewindableRs;
 		}
 		return rs;
 	}
@@ -87,8 +105,10 @@ public class MemcachedQueryEngineHTTP extends QueryEngineHTTP implements
 
 		Object value = client.get(key);
 		if (value != null) {
+			logger.debug("Result Model is retrieving from the cache.");
 			toModel((String) value, model);
 		} else {
+			logger.debug("Result Model will be got from dataset endpoint.");
 			model = super.execConstruct();
 			client.set(key, TTL, toString(model));
 		}
@@ -102,8 +122,10 @@ public class MemcachedQueryEngineHTTP extends QueryEngineHTTP implements
 
 		Object value = client.get(key);
 		if (value != null) {
+			logger.debug("Result Model is retrieving from the cache.");
 			toModel((String) value, model);
 		} else {
+			logger.debug("Result Model will be got from dataset endpoint.");
 			model = super.execConstruct(m);
 			client.set(key, TTL, toString(model));
 		}
@@ -117,8 +139,10 @@ public class MemcachedQueryEngineHTTP extends QueryEngineHTTP implements
 
 		Object value = client.get(key);
 		if (value != null) {
+			logger.debug("Result Model is retrieving from the cache.");
 			toModel((String) value, model);
 		} else {
+			logger.debug("Result Model will be got from dataset endpoint.");
 			model = super.execDescribe();
 			client.set(key, TTL, toString(model));
 		}
@@ -132,8 +156,10 @@ public class MemcachedQueryEngineHTTP extends QueryEngineHTTP implements
 
 		Object value = client.get(key);
 		if (value != null) {
+			logger.debug("Result Model is retrieving from the cache.");
 			toModel((String) value, model);
 		} else {
+			logger.debug("Result Model will be got from dataset endpoint.");
 			model = super.execDescribe(m);
 			client.set(key, TTL, toString(model));
 		}
@@ -151,8 +177,10 @@ public class MemcachedQueryEngineHTTP extends QueryEngineHTTP implements
 
 		Object value = client.get(key);
 		if (value != null) {
+			logger.debug("Ask Result is retrieving from the cache.");
 			ask = Boolean.parseBoolean((String) value);
 		} else {
+			logger.debug("Ask Result will be got from dataset endpoint.");
 			ask = super.execAsk();
 			client.set(key, TTL, Boolean.toString(ask));
 		}

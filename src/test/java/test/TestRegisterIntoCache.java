@@ -36,7 +36,7 @@ public class TestRegisterIntoCache {
 		memCacheServer = new MemCacheDaemon<LocalCacheElement>();
 
 		CacheStorage<Key, LocalCacheElement> storage = ConcurrentLinkedHashMap
-				.create(ConcurrentLinkedHashMap.EvictionPolicy.LRU, 1000000,
+				.create(ConcurrentLinkedHashMap.EvictionPolicy.LRU, 1000,
 						100000000);
 		memCacheServer.setCache(new CacheImpl(storage));
 		InetAddress localHost = InetAddress.getByName("127.0.0.1");
@@ -80,6 +80,9 @@ public class TestRegisterIntoCache {
 
 		mockQueryEngine.shutdown();
 
+		// release client
+		MockMemcachedQueryEngineHTTP.setClient(null);
+
 	}
 
 	/**
@@ -109,6 +112,9 @@ public class TestRegisterIntoCache {
 
 		mockQueryEngine.shutdown();
 
+		// release client
+		MockMemcachedQueryEngineHTTP.setClient(null);
+
 	}
 
 	/**
@@ -136,6 +142,9 @@ public class TestRegisterIntoCache {
 		assertNotNull(mockQueryEngine.getClient().get(mockQueryEngine.getKey()));
 
 		mockQueryEngine.shutdown();
+
+		// release client
+		MockMemcachedQueryEngineHTTP.setClient(null);
 
 	}
 
@@ -175,6 +184,9 @@ public class TestRegisterIntoCache {
 
 		mockQueryEngineSecond.shutdown();
 
+		// release client
+		MockMemcachedQueryEngineHTTP.setClient(null);
+
 	}
 
 	@Ignore
@@ -212,6 +224,9 @@ public class TestRegisterIntoCache {
 				mockQueryEngineSecond.getKey()));
 
 		mockQueryEngineSecond.shutdown();
+
+		// release client
+		MockMemcachedQueryEngineHTTP.setClient(null);
 
 	}
 

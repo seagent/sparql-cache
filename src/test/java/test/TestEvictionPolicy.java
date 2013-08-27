@@ -30,29 +30,6 @@ public class TestEvictionPolicy {
 	private MemCacheDaemon<LocalCacheElement> memCacheServer;
 
 	/**
-	 * This method tries to connect memcache server, if server already started
-	 * leaves it as working.
-	 * 
-	 * @param evictionPolicy
-	 * @throws UnknownHostException
-	 */
-	private void provideMemcachedServerAsConnected(EvictionPolicy evictionPolicy)
-			throws UnknownHostException {
-		try {
-			// try to start memcached server
-			startMemcachedServer(evictionPolicy);
-		} catch (ChannelException e) {
-			if (e.getCause().getClass().equals(BindException.class)) {
-				// leave server working if it is started before
-				e.printStackTrace();
-			} else {
-				// throw exceptions whose cause are not a BindException...
-				throw e;
-			}
-		}
-	}
-
-	/**
 	 * This method starts memcache server
 	 * 
 	 * @param evictionPolicy
@@ -97,7 +74,8 @@ public class TestEvictionPolicy {
 	public void executeTTLScenario() throws Exception {
 
 		// provide memcached server as started
-		provideMemcachedServerAsConnected(EvictionPolicy.LRU);
+		// try to start memcached server
+		startMemcachedServer(EvictionPolicy.LRU);
 
 		// create a mock memcached query engine to simulate executing sparql
 		// queries using memcached cache.
@@ -123,6 +101,9 @@ public class TestEvictionPolicy {
 		// check that result not contained anymore because of TTL is exceeded.
 		assertNull(mockQueryEngineDBpedia.getClient().get(
 				mockQueryEngineDBpedia.getKey()));
+
+		// release client
+		MockMemcachedQueryEngineHTTP.setClient(null);
 	}
 
 	/**
@@ -134,7 +115,8 @@ public class TestEvictionPolicy {
 	public void executeFIFOOverflowScenario() throws Exception {
 
 		// provide memcached server as started
-		provideMemcachedServerAsConnected(EvictionPolicy.FIFO);
+		// try to start memcached server
+		startMemcachedServer(EvictionPolicy.FIFO);
 
 		// set TTL value 1 day again
 		MockMemcachedQueryEngineHTTP.TTL = 60 * 60 * 24;
@@ -204,6 +186,9 @@ public class TestEvictionPolicy {
 		assertNotNull(mockQueryEngineNytimes.getClient().get(
 				mockQueryEngineNytimes.getKey()));
 
+		// release client
+		MockMemcachedQueryEngineHTTP.setClient(null);
+
 	}
 
 	/**
@@ -215,7 +200,8 @@ public class TestEvictionPolicy {
 	public void executeLRUOverflowScenario() throws Exception {
 
 		// provide memcached server as started
-		provideMemcachedServerAsConnected(EvictionPolicy.LRU);
+		// try to start memcached server
+		startMemcachedServer(EvictionPolicy.LRU);
 
 		// set TTL value 1 day again
 		MockMemcachedQueryEngineHTTP.TTL = 60 * 60 * 24;
@@ -293,6 +279,9 @@ public class TestEvictionPolicy {
 		assertFalse(mockQueryEngineNytimes.isResultInTheCache());
 		assertNotNull(mockQueryEngineNytimes.getClient().get(
 				mockQueryEngineNytimes.getKey()));
+
+		// release client
+		MockMemcachedQueryEngineHTTP.setClient(null);
 	}
 
 }
