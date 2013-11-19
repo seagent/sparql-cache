@@ -5,6 +5,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
 
 public class Constants {
 
+
 	public static final String LOCAL_DBPEDIA_ENDPOINT = "http://155.223.25.212:7000/sparql/";
 	public static final String LOCAL_DRUGBANK_ENDPOINT = "http://155.223.25.212:8000/sparql/";
 	public static final String LOCAL_NYTIMES_ENDPOINT = "http://155.223.25.212:9000/sparql/";
